@@ -63,7 +63,6 @@ char Top(struct Stack* topOfStack){
 	}
 
 }
-
 //Method to check whether the current top element of the stack has the higher priority over the current character of the expression.
 bool hasHigherPriority(struct Stack* topOfStack,char currentChar){
 
@@ -114,75 +113,58 @@ bool isOperator(char element){
 	}
 }
 
-//Operation to convert Infix expression to Postfix expression
-string convertInfixToPostfix(struct Stack* topOfStack,string Expression){
-
+//convert Infix expression to Postfix expression with parentheses
+string convertInfixToPostFix(struct Stack* topOfStack,string expression){
 	string resultString;
 
-	for(int i=0;i<Expression.length();i++){
-		/*
-		If the current character is an operand, append the character to Postfix string.	
-		*/
-		if(isOperand(Expression[i])==true){
-			resultString = resultString+Expression[i];
-		/*
-		If the charater is an operator there could be three cases.
-		*/
-		}else if(isOperator(Expression[i])==true){
+	for(int i=0;i<expression.length();i++){
 
-			/*
-			If the character is an operator and Stack is empty, Push the character to the Stack
-			*/
+		if(expression[i] == '('){
+			topOfStack = Push(topOfStack,expression[i]);
+		}else if(isOperand(expression[i])){
+			resultString = resultString + expression[i];
+		}else if(isOperator(expression[i])){
+
+			//Case I
 			if(isEmpty(topOfStack)){
-				topOfStack = Push(topOfStack,Expression[i]);
-
-			/*
-			If the character is an operator and stack is NOT empty, check if the Top(topOfStack) has a higher priority operator.
-			If Top(topOfStack) is not a higher priority operator, Push the character to the Stack.
-			*/	
-			}else if(!hasHigherPriority(topOfStack,Expression[i])){
-			
-				topOfStack = Push(topOfStack,Expression[i]);
-			
-			/*
-			If the character is an operator and stack is NOT empty, check if the Top(topOfStack) has a higher priority operator.
-			If the Top(topOfStack) is indeed a higher priority operator, Start a Loop with the condition that as long as Stack is
-			not empty and Top(topOfStack) has higher priority operator.
-			*/
-			}else if(hasHigherPriority(topOfStack,Expression[i])){
-
-				//Loop Start: Pop each character from the Stack and append to Postfix String.
-				while(!isEmpty(topOfStack) && hasHigherPriority(topOfStack,Expression[i])==true){
-					resultString = resultString+Top(topOfStack);
+				topOfStack = Push(topOfStack,expression[i]);
+				//Case II
+			}else if(!hasHigherPriority(topOfStack,expression[i])){
+				topOfStack = Push(topOfStack,expression[i]);
+			}else if(hasHigherPriority(topOfStack,expression[i])){
+				//Case III
+				while(!isEmpty(topOfStack) && hasHigherPriority(topOfStack,expression[i])){
+					resultString = resultString + Top(topOfStack);
 					topOfStack = Pop(topOfStack);
 				}
-				//Loop End: When Top(topOfStack) no longer has a higher priority operator loop ends And Push the current
-				//character from the expression to the Stack.
-				topOfStack = Push(topOfStack,Expression[i]);
+				topOfStack = Push(topOfStack,expression[i]);
 			}
+
+
+		}else if(expression[i] == ')'){
+			while(!isEmpty(topOfStack) && Top(topOfStack)!='('){
+				resultString = resultString + Top(topOfStack);
+				topOfStack = Pop(topOfStack);
+			}
+			topOfStack = Pop(topOfStack);
 		}
 	}
-	/*
-	Done with the iteration across the Infix expression. Now flush the stack and append the Top(topOfStack) characters to
-	Postfix string.
-	*/
 	while(!isEmpty(topOfStack)){
-		resultString=resultString+Top(topOfStack);
+		resultString = resultString + Top(topOfStack);
 		topOfStack = Pop(topOfStack);
 	}
 	return resultString;
 }
 
 
-int main(){
-
-	struct Stack* topOfStack = NULL; //Empty Stack
-
-	string expression;
-
-	cout << "Enter the Infix expression: " << endl;
+int main(int argc, char const *argv[])
+{
+	struct Stack* topOfStack = NULL; // Declaring empty Stack
+	string expression,resultString;
+	cout << "Enter the Infix exporession with parentheses: " << endl;
 	cin >> expression;
-	cout << "Postfix Expression is: " << endl;
-	cout << convertInfixToPostfix(topOfStack,expression) << endl;
+	resultString = convertInfixToPostFix(topOfStack,expression);
+	cout << "The Postfix string is : " << resultString << endl;
 
+	return 0;
 }
